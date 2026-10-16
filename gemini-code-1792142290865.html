@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Агро-Лаборатория им. Р. Г. Гареева</title>
+    <style>
+        :root {
+            /* Тёплый жёлто-оранжевый градиент */
+            --bg-grad: linear-gradient(135deg, #FFF9C4 0%, #FFD54F 50%, #FFB300 100%);
+            --glass-bg: rgba(255, 255, 255, 0.6);
+            --glass-border: rgba(255, 255, 255, 0.8);
+            --text-main: #1F2937; /* Темный контрастный текст */
+            --text-muted: #4B5563;
+            
+            --accent-green: #059669;
+            --accent-orange: #EA580C;
+            --accent-blue: #0284C7;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: var(--bg-grad);
+            color: var(--text-main);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+            padding-bottom: 250px; /* Место для клавиатуры */
+        }
+
+        /* Верхняя панель управления */
+        .top-bar {
+            width: 100%;
+            max-width: 1050px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 15px 25px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(217, 119, 6, 0.15);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .brand-icon {
+            font-size: 40px;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .brand-text h1 {
+            margin: 0;
+            font-size: 22px;
+            color: #9A3412; /* Насыщенный терракотовый */
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 800;
+        }
+
+        .brand-text p {
+            margin: 3px 0 0;
+            font-size: 14px;
+            color: #78350F;
+            font-weight: 600;
+        }
+
+        .top-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        /* Кнопки верхней панели */
+        .glass-btn {
+            background: rgba(255, 255, 255, 0.9);
+            color: var(--text-main);
+            border: 2px solid rgba(255, 255, 255, 1);
+            padding: 10px 18px;
+            border-radius: 14px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .glass-btn:hover {
+            transform: translateY(-2px);
+            background: #ffffff;
+            box-shadow: 0 8px 20px rgba(217, 119, 6, 0.2);
+        }
+
+        .glass-btn:active {
+            transform: translateY(1px);
+        }
+
+        .btn-print {
+            color: #9A3412;
+            border-color: #FCD34D;
+        }
+
+        /* Переключатель уровней */
+        .level-tabs {
+            width: 100%;
+            max-width: 1050px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .level-btn {
+            background: rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            border-radius: 18px;
+            padding: 14px 16px;
+            color: var(--text-main);
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+        }
+
+        .level-btn .lvl-emoji {
+            font-size: 32px;
+        }
+
+        .level-btn .lvl-title {
+            font-weight: 800;
+            font-size: 16px;
+            display: block;
+            margin-bottom: 3px;
+        }
+
+        .level-btn .lvl-desc {
+            font-size: 13px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .level-btn:hover {
+            background: rgba(255, 255, 255, 0.8);
+            transform: translateY(-2px);
+        }
+
+        /* Активные состояния кнопок уровней */
+        .level-btn.active-lesson {
+            background: #FEF08A;
+            border-color: #F59E0B;
+            box-shadow: 0 0 20px rgba(245, 158, 11, 0.4);
+        }
+
+        .level-btn.active-easy {
+            background: #D1FAE5;
+            border-color: #10B981;
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+        }
+
+        .level-btn.active-hard {
+            background: #FCE7F3;
+            border-color: #EC4899;
+            box-shadow: 0 0 20px rgba(236, 72, 153, 0.4);
+        }
+
+        /* Главная карточка с таблицей */
+        .main-card {
+            width: 100%;
+            max-width: 1050px;
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(20px);
+            border: 2px solid #FFFFFF;
+            border-radius: 24px;
+            padding: 25px 30px;
+            box-shadow: 0 15px 35px rgba(217, 119, 6, 0.15);
+        }
+
+        .info-banner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #FFFBEB;
+            border-left: 5px solid #F59E0B;
+            padding: 12px 18px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .formula-badge {
+            background: #FEF3C7;
+            border: 2px solid #F59E0B;
+            color: #9A3412;
+            padding: 6px 14px;
+            border-radius: 10px;
+            font-weight: 800;
+            font-size: 20px;
+            box-shadow: 0 4px 10px rgba(245, 158, 11, 0.2);
+        }
+
+        /* Таблица */
+        .agro-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 10px;
+        }
+
+        .agro-table th {
+            text-align: center;
+            padding: 14px;
+            font-size: 18px;
+            color: #78350F;
+            text-transform: uppercase;
+            font-weight: 800;
+            border-bottom: 3px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .agro-table th:first-child {
+            text-align: left;
+            padding-left: 20px;
+        }
+
+        .agro-table tbody tr {
+            background: #ffffff;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+            border-radius: 16px;
+            transition: all 0.2s ease;
+        }
+
+        .agro-table tbody tr:hover {
+            transform: scale(1.01);
+            box-shadow: 0 6px 15px rgba(245, 158, 11, 0.15);
+        }
+
+        .agro-table td {
+            padding: 16px;
+            font-size: 24px;
+            font-weight: 800;
+            text-align: center;
+            color: #1F2937;
+        }
+
+        .agro-table td:first-child {
+            text-align: left;
+            padding-left: 20px;
+            border-radius: 16px 0 0 16px;
+        }
+
+        .agro-table td:last-child {
+            border-radius: 0 16px 16px 0;
+        }
+
+        .crop-cell {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .crop-emoji {
+            font-size: 38px;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+        }
+
+        .crop-name {
+            font-size: 20px;
+            color: #1F2937;
+            font-weight: 800;
+            display: block;
+        }
+
+        .crop-variety {
+            font-size: 14px;
+            color: #6B7280;
+            font-weight: 600;
+        }
+
+        /* Поле ввода в ячейке */
+        .input-wrap {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            background: #F3F4F6;
+            padding: 6px 14px;
+            border-radius: 14px;
+            border: 3px solid #D1D5DB;
+            transition: all 0.25s;
+        }
+
+        .input-wrap.focused {
+            border-color: #38BDF8;
+            background: #E0F2FE;
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+        }
+
+        .input-wrap.correct {
+            border-color: #10B981;
+            background: #D1FAE5;
+        }
+
+        .input-wrap.wrong {
+            border-color: #EF4444;
+            background: #FEE2E2;
+            animation: shake 0.4s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-6px); }
+            75% { transform: translateX(6px); }
+        }
+
+        .cell-input {
+            width: 70px;
+            background: transparent;
+            border: none;
+            color: #1F2937;
+            font-size: 26px;
+            font-weight: 900;
+            text-align: center;
+            outline: none;
+            padding: 0;
+            cursor: pointer;
+        }
+
+        .cell-input::placeholder {
+            color: #9CA3AF;
+        }
+
+        .unit-label {
+            font-size: 20px;
+            color: #6B7280;
+            font-weight: 700;
+        }
+
+        /* Нижняя панель */
+        .bottom-bar {
+            margin-top: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .btn-check {
+            background: #10B981;
+            color: white;
+            border: 3px solid #059669;
+            padding: 14px 30px;
+            font-size: 20px;
+            border-radius: 16px;
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-check:hover {
+            background: #059669;
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.5);
+            border-color: #047857;
+        }
+
+        .grade-box {
+            display: none;
+            align-items: center;
+            gap: 15px;
+            padding: 12px 24px;
+            border-radius: 16px;
+            background: #FEF3C7;
+            border: 3px solid #F59E0B;
+            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.3);
+            animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.7); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .grade-circle {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: #F59E0B;
+            color: #fff;
+            font-size: 34px;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .grade-text {
+            font-size: 18px;
+            font-weight: 800;
+            color: #9A3412;
+        }
+
+        /* ВИРТУАЛЬНАЯ КЛАВИАТУРА */
+        .virtual-keyboard {
+            position: fixed;
+            bottom: -350px;
+            left: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px);
+            box-shadow: 0 -10px 30px rgba(0,0,0,0.15);
+            border-top: 3px solid #FCD34D;
+            padding: 20px;
+            transition: bottom 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 1000;
+        }
+
+        .virtual-keyboard.show {
+            bottom: 0;
+        }
+
+        .vk-container {
+            max-width: 400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .vk-btn {
+            background: #F3F4F6;
+            border: 2px solid #E5E7EB;
+            border-radius: 14px;
+            padding: 15px;
+            font-size: 28px;
+            font-weight: 800;
+            color: #1F2937;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            transition: all 0.1s;
+        }
+
+        .vk-btn:active {
+            background: #E5E7EB;
+            transform: scale(0.95);
+        }
+
+        .vk-del {
+            background: #FEE2E2;
+            color: #EF4444;
+            border-color: #FCA5A5;
+        }
+        .vk-enter {
+            background: #D1FAE5;
+            color: #10B981;
+            border-color: #6EE7B7;
+        }
+
+        /* Контейнер для печати (Скрыт на экране, виден только при печати) */
+        .print-sheet { display: none; }
+
+        @media print {
+            body { background: #fff !important; color: #000 !important; padding: 0; }
+            .no-print, .virtual-keyboard { display: none !important; }
+            .print-sheet { display: block !important; width: 100%; }
+            .print-card {
+                border: 2px solid #000; border-radius: 10px; padding: 18px;
+                margin-bottom: 22px; page-break-inside: avoid;
+            }
+            .print-header {
+                display: flex; justify-content: space-between; align-items: center;
+                border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 12px;
+            }
+            .print-header h2 { margin: 0; font-size: 18px; }
+            .print-table { width: 100%; border-collapse: collapse; font-size: 16px; }
+            .print-table th, .print-table td {
+                border: 1.5px solid #000; padding: 10px 12px; text-align: center;
+            }
+            .print-table th { background: #f1f5f9 !important; -webkit-print-color-adjust: exact; }
+            .print-table td:first-child { text-align: left; font-weight: bold; }
+            .print-box {
+                display: inline-block; width: 50px; height: 26px;
+                border: 1.5px dashed #000; vertical-align: middle; margin: 0 4px;
+            }
+            .print-footer { margin-top: 10px; font-size: 13px; display: flex; justify-content: space-between; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Верхняя панель -->
+    <div class="top-bar no-print">
+        <div class="brand">
+            <div class="brand-icon">🌾</div>
+            <div class="brand-text">
+                <h1>Агро-Лаборатория им. Р. Г. Гареева</h1>
+                <p>Интерактивный тренажёр • 3 класс</p>
+            </div>
+        </div>
+        <div class="top-actions">
+            <button class="glass-btn" onclick="generateNewTable()">
+                🔄 Сгенерировать новые поля
+            </button>
+            <button class="glass-btn btn-print" onclick="window.print()">
+                🖨️ Печать карточек (А4)
+            </button>
+        </div>
+    </div>
+
+    <!-- Кнопки выбора уровня -->
+    <div class="level-tabs no-print">
+        <button class="level-btn active-lesson" id="tab-lesson" onclick="setMode('lesson')">
+            <span class="lvl-emoji">🎓</span>
+            <div>
+                <span class="lvl-title">Обучение (Урок)</span>
+                <span class="lvl-desc">Эталонная таблица с уравнениями для работы в группах</span>
+            </div>
+        </button>
+        <button class="level-btn" id="tab-easy" onclick="setMode('easy')">
+            <span class="lvl-emoji">🌱</span>
+            <div>
+                <span class="lvl-title">Базовый: Агроном-практик</span>
+                <span class="lvl-desc">Прямые задачи: находим площадь поля (S = a · b)</span>
+            </div>
+        </button>
+        <button class="level-btn" id="tab-hard" onclick="setMode('hard')">
+            <span class="lvl-emoji">🌟</span>
+            <div>
+                <span class="lvl-title">Повышенный: Главный селекционер</span>
+                <span class="lvl-desc">Задачи вперемешку: прямые и обратные</span>
+            </div>
+        </button>
+    </div>
+
+    <!-- Основная карточка с таблицей -->
+    <div class="main-card no-print">
+        <div class="info-banner">
+            <div id="mode-instruction">
+                🔬 <strong>Задание для групп:</strong> Решите уравнение в тетради и впишите ответ!
+            </div>
+            <div class="formula-badge">S = a · b</div>
+        </div>
+
+        <table class="agro-table">
+            <thead>
+                <tr>
+                    <th>Культура (Наследие Р. Г. Гареева)</th>
+                    <th>Длина (a)</th>
+                    <th>Ширина (b)</th>
+                    <th>Площадь (S)</th>
+                </tr>
+            </thead>
+            <tbody id="table-body">
+                <!-- Строки генерируются скриптом -->
+            </tbody>
+        </table>
+
+        <div class="bottom-bar">
+            <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                <button class="glass-btn btn-check" onclick="checkTable()">
+                    ✅ Проверить поля!
+                </button>
+            </div>
+
+            <div class="grade-box" id="grade-box">
+                <div class="grade-circle" id="grade-num">5</div>
+                <div class="grade-text" id="grade-msg">Урожай спасён! Все поля рассчитаны верно!</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Виртуальная клавиатура -->
+    <div class="virtual-keyboard" id="vk">
+        <div class="vk-container">
+            <button class="vk-btn" onclick="vkPress('1')">1</button>
+            <button class="vk-btn" onclick="vkPress('2')">2</button>
+            <button class="vk-btn" onclick="vkPress('3')">3</button>
+            <button class="vk-btn" onclick="vkPress('4')">4</button>
+            <button class="vk-btn" onclick="vkPress('5')">5</button>
+            <button class="vk-btn" onclick="vkPress('6')">6</button>
+            <button class="vk-btn" onclick="vkPress('7')">7</button>
+            <button class="vk-btn" onclick="vkPress('8')">8</button>
+            <button class="vk-btn" onclick="vkPress('9')">9</button>
+            <button class="vk-btn vk-del" onclick="vkPress('del')">⌫</button>
+            <button class="vk-btn" onclick="vkPress('0')">0</button>
+            <button class="vk-btn vk-enter" onclick="hideVk()">✅</button>
+        </div>
+    </div>
+
+    <!-- Лист А4 для печати -->
+    <div class="print-sheet" id="print-sheet"></div>
+
+    <script>
+        let currentMode = 'lesson';
+        let currentRows = [];
+        let activeInput = null; // Текущее выбранное поле ввода
+
+        const cropsData = [
+            { emoji: '🌾', name: 'Пшеница', variety: 'сорт «Казанская Юбилейная»' },
+            { emoji: '🍞', name: 'Озимая рожь', variety: 'сорт «Эстафета Татарстана»' },
+            { emoji: '🌼', name: 'Яровой рапс', variety: 'гордость «Татрапс» Р. Г. Гареева' },
+            { emoji: '🥣', name: 'Гречиха', variety: 'сорт «Батыр» (Госпремия)' }
+        ];
+
+        // Эталонная таблица для открытого урока
+        const lessonPreset = [
+            { a: null, b: 3, s: 18, missing: 'a', answer: 6 },
+            { a: 6, b: null, s: 12, missing: 'b', answer: 2 },
+            { a: null, b: 4, s: 28, missing: 'a', answer: 7 },
+            { a: 7, b: null, s: 35, missing: 'b', answer: 5 }
+        ];
+
+        function randInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function setMode(mode) {
+            currentMode = mode;
+            document.getElementById('tab-lesson').className = 'level-btn' + (mode === 'lesson' ? ' active-lesson' : '');
+            document.getElementById('tab-easy').className = 'level-btn' + (mode === 'easy' ? ' active-easy' : '');
+            document.getElementById('tab-hard').className = 'level-btn' + (mode === 'hard' ? ' active-hard' : '');
+
+            const instr = document.getElementById('mode-instruction');
+            if (mode === 'lesson') {
+                instr.innerHTML = '🔬 <strong>Задание для групп (Урок):</strong> Решите уравнение делением и впишите неизвестную сторону!';
+                currentRows = JSON.parse(JSON.stringify(lessonPreset));
+                renderTable();
+            } else if (mode === 'easy') {
+                instr.innerHTML = '🌱 <strong>Уровень «Агроном-практик» (Прямые задачи):</strong> Известны длина и ширина. Найдите площадь!';
+                generateNewTable();
+            } else {
+                instr.innerHTML = '🌟 <strong>Уровень «Главный селекционер» (Вперемешку):</strong> Найдите площадь умножением или решите уравнение делением!';
+                generateNewTable();
+            }
+            hideVk();
+        }
+
+        function generateNewTable() {
+            document.getElementById('grade-box').style.display = 'none';
+            hideVk();
+
+            if (currentMode === 'lesson') {
+                currentRows = cropsData.map((_, idx) => {
+                    const a = randInt(4, 9);
+                    const b = randInt(2, 6);
+                    const hideA = idx % 2 === 0;
+                    return {
+                        a: hideA ? null : a,
+                        b: hideA ? b : null,
+                        s: a * b,
+                        missing: hideA ? 'a' : 'b',
+                        answer: hideA ? a : b
+                    };
+                });
+            } else if (currentMode === 'easy') {
+                currentRows = cropsData.map(() => {
+                    const a = randInt(3, 9);
+                    const b = randInt(2, 8);
+                    return { a: a, b: b, s: null, missing: 's', answer: a * b };
+                });
+            } else {
+                const types = ['a', 'b', 's', 'a'].sort(() => Math.random() - 0.5);
+                currentRows = cropsData.map((_, idx) => {
+                    const a = randInt(3, 9);
+                    const b = randInt(2, 8);
+                    const miss = types[idx];
+                    return {
+                        a: miss === 'a' ? null : a,
+                        b: miss === 'b' ? null : b,
+                        s: miss === 's' ? null : a * b,
+                        missing: miss,
+                        answer: miss === 'a' ? a : (miss === 'b' ? b : a * b)
+                    };
+                });
+            }
+            renderTable();
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('table-body');
+            tbody.innerHTML = '';
+            document.getElementById('grade-box').style.display = 'none';
+
+            currentRows.forEach((row, index) => {
+                const crop = cropsData[index];
+                const tr = document.createElement('tr');
+
+                const getCellHtml = (val, isMissing, unit) => {
+                    if (isMissing) {
+                        return `<div class="input-wrap" id="wrap-${index}">
+                                  <input type="text" inputmode="none" class="cell-input" id="inp-${index}" placeholder="?" readonly>
+                                  <span class="unit-label">${unit}</span>
+                                </div>`;
+                    }
+                    return `${val} ${unit}`;
+                };
+
+                tr.innerHTML = `
+                    <td>
+                        <div class="crop-cell">
+                            <span class="crop-emoji">${crop.emoji}</span>
+                            <div>
+                                <span class="crop-name">${crop.name}</span>
+                                <span class="crop-variety">${crop.variety}</span>
+                            </div>
+                        </div>
+                    </td>
+                    <td>${getCellHtml(row.a, row.missing === 'a', 'м')}</td>
+                    <td>${getCellHtml(row.b, row.missing === 'b', 'м')}</td>
+                    <td>${getCellHtml(row.s, row.missing === 's', 'м²')}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            // Навешиваем события для вызова клавиатуры
+            document.querySelectorAll('.cell-input').forEach(inp => {
+                inp.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    showVk(this);
+                });
+            });
+
+            renderPrintSheet();
+        }
+
+        // --- ЛОГИКА ЭКРАННОЙ КЛАВИАТУРЫ ---
+        const vk = document.getElementById('vk');
+        
+        function showVk(inputEl) {
+            document.querySelectorAll('.input-wrap').forEach(w => w.classList.remove('focused'));
+            activeInput = inputEl;
+            activeInput.parentElement.classList.add('focused');
+            vk.classList.add('show');
+        }
+
+        function hideVk() {
+            vk.classList.remove('show');
+            if(activeInput) {
+                activeInput.parentElement.classList.remove('focused');
+                activeInput = null;
+            }
+        }
+
+        function vkPress(key) {
+            if (!activeInput) return;
+            let val = activeInput.value;
+            
+            if (key === 'del') {
+                activeInput.value = val.slice(0, -1);
+            } else {
+                if (val.length < 3) activeInput.value += key; // Ограничение в 3 символа
+            }
+        }
+
+        // Скрывать клавиатуру при клике вне её и вне инпутов
+        document.addEventListener('click', function(e) {
+            if (!vk.contains(e.target) && !e.target.classList.contains('cell-input')) {
+                hideVk();
+            }
+        });
+        // ----------------------------------
+
+        function checkTable() {
+            hideVk();
+            let correctCount = 0;
+
+            currentRows.forEach((row, index) => {
+                const inp = document.getElementById(`inp-${index}`);
+                const wrap = document.getElementById(`wrap-${index}`);
+                const val = parseInt(inp.value, 10);
+
+                wrap.classList.remove('correct', 'wrong');
+                if (val === row.answer) {
+                    wrap.classList.add('correct');
+                    correctCount++;
+                } else {
+                    wrap.classList.add('wrong');
+                }
+            });
+
+            const gradeBox = document.getElementById('grade-box');
+            const gradeNum = document.getElementById('grade-num');
+            const gradeMsg = document.getElementById('grade-msg');
+            gradeBox.style.display = 'flex';
+
+            if (correctCount === 4) {
+                gradeNum.textContent = '5';
+                gradeNum.style.background = '#F59E0B';
+                gradeMsg.textContent = '🎉 Блестяще! Все 4 поля Рауиса Гареева засеяны! Оценка: 5!';
+            } else if (correctCount === 3) {
+                gradeNum.textContent = '4';
+                gradeNum.style.background = '#10B981';
+                gradeMsg.textContent = '👍 Хорошая работа! 3 из 4 полей верны. Исправьте одну ячейку!';
+            } else if (correctCount === 2) {
+                gradeNum.textContent = '3';
+                gradeNum.style.background = '#0284C7';
+                gradeMsg.textContent = '🌱 Половина полей засеяна. Проверьте вычисления!';
+            } else {
+                gradeNum.textContent = '!';
+                gradeNum.style.background = '#EF4444';
+                gradeMsg.textContent = '🔍 Попробуйте ещё раз! Вспомните формулу S = a · b';
+            }
+        }
+
+        function renderPrintSheet() {
+            const printContainer = document.getElementById('print-sheet');
+            let rowsHtml = '';
+
+            currentRows.forEach((row, index) => {
+                const crop = cropsData[index];
+                const pA = row.missing === 'a' ? `<span class="print-box"></span> м` : `${row.a} м`;
+                const pB = row.missing === 'b' ? `<span class="print-box"></span> м` : `${row.b} м`;
+                const pS = row.missing === 's' ? `<span class="print-box"></span> м²` : `${row.s} м²`;
+
+                rowsHtml += `
+                    <tr>
+                        <td>${crop.emoji} ${crop.name}</td>
+                        <td>${pA}</td>
+                        <td>${pB}</td>
+                        <td>${pS}</td>
+                    </tr>
+                `;
+            });
+
+            const singleCard = `
+                <div class="print-card">
+                    <div class="print-header">
+                        <h2>🌾 Агро-Лаборатория им. Р. Г. Гареева — Опытные поля</h2>
+                        <div><strong>Команда № ______</strong></div>
+                    </div>
+                    <table class="print-table">
+                        <thead>
+                            <tr>
+                                <th>Культура</th>
+                                <th>Длина (a)</th>
+                                <th>Ширина (b)</th>
+                                <th>Площадь (S)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${rowsHtml}
+                        </tbody>
+                    </table>
+                    <div class="print-footer">
+                        <span>Формула площади прямоугольника: <strong>S = a · b</strong></span>
+                        <span>Оценка команды: _______</span>
+                    </div>
+                </div>
+            `;
+
+            printContainer.innerHTML = singleCard + singleCard;
+        }
+
+        // Запуск
+        setMode('lesson');
+    </script>
+</body>
+</html>
